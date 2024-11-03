@@ -1,41 +1,64 @@
+/* Estilo geral do corpo */
 body {
   font-family: Arial, sans-serif;
   background-color: #f4f4f4;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
 }
 
+/* Estilo do contêiner principal */
 .container {
-  width: 100%;
+  width: 200px;
   max-width: 500px;
-  display: flex;
+  display: block; 
   justify-content: center;
   align-items: center;
   flex-direction: column;
 }
 
+/* Estilo dos formulários */
 .form-container {
   background-color: white;
   border-radius: 10px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
   padding: 30px;
   width: 100%;
-  max-width: 400px;
-  display: none;
-}
+  max-width: 500px;
 
+}
+/* Exibe o formulário de login por padrão */
 .login-container {
-  display: block;
+  width: 100%;
+  max-width: 500px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  position: absolute; /* Adiciona esta linha */
+  top: 50%; /* Adiciona esta linha */
+  left: 50%; /* Adiciona esta linha */
+  transform: translate(-50%, -5%); /* Adiciona esta linha */
 }
 
-h2 {
-  text-align: center;
-  margin-bottom: 20px;
+
+.cadastro-container {
+    background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 1200px;
+  position: absolute; /* Adiciona esta linha */
+  top: 50%; /* Adiciona esta linha */
+  left: 50%; /* Adiciona esta linha */
+  transform: translate(-50%, -2%);
+  
+
 }
 
-input {
+/* Estilo para os inputs e botões */
+.input_login{
   width: 100%;
   padding: 10px;
   margin: 10px 0;
@@ -44,9 +67,18 @@ input {
   font-size: 16px;
 }
 
+.input_cadastro{
+  width: 100%;
+  padding: 8px;
+margin-top:10px;
+margin-bottom:10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  font-size: 16px;
+}
 button {
   width: 100%;
-  background-color: #28a745;
+  background-color: #83516e;
   color: white;
   border: none;
   padding: 15px;
@@ -57,7 +89,8 @@ button {
 }
 
 button:hover {
-  background-color: #218838;
+  background-color: #fdfe8d;
+color: #83516e;
 }
 
 p {
@@ -73,32 +106,81 @@ a {
 a:hover {
   text-decoration: underline;
 }
-/* Estilo da lista de produtos */
-.product-list {
+.navbar {
+    width: 100%;
+    background-color: #83516e;
+    overflow: hidden;
+}
+
+.navbar-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+   
+}
+
+.navbar-item {
+    padding: 14px 20px;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    cursor: pointer;
+}
+.navbar-item:hover {
+    color: #fdfe8d;
+}
+
+
+.banner {
+    width: 100%;
+    height: 390px; /* Ajuste a altura conforme necessário */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 20px; /* Espaçamento abaixo do banner */
+}
+
+.banner img {
+    width: 100%;
+    height: 350px;
+    border-radius: 5px; /* Ajuste conforme necessário */
+}
+
+.company-list {
+    list-style-type: none;
+    padding: 0;
+    width: 100%;
     display: flex;
     flex-wrap: wrap;
-    gap: 20px; /* Espaço entre os itens */
-    justify-content: flex-start;
 }
 
-/* Estilo de cada produto */
-.product-item {
-    background-color: #f9f9f9;
+.company-item {
+    display: flex;
+    align-items: center;
+    margin: 10px;
     border: 1px solid #ccc;
-    border-radius: 8px;
-    padding: 15px;
-    width: 250px;
-    box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.1);
-    transition: transform 0.3s;
-}
-
-.product-item:hover {
-    transform: scale(1.05); /* Efeito de hover */
-}
-
-/* Estilo da imagem do produto */
-.product-item img {
-    display: block;
-    margin-bottom: 10px;
+    padding: 10px;
     border-radius: 5px;
+    width: 300px;
+    box-sizing: border-box;
 }
+
+.company-image {
+    width: 50px;
+    height: 50px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 20px;
+}
+
+.company-details {
+    display: flex;
+    flex-direction: column;
+}
+
+.company-details h3, .company-details h4 {
+    margin: 0;
+}
+.tituloEmpresas{
+text-align: center;}
