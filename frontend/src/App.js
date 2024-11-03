@@ -1,7 +1,102 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
+
 import axios from 'axios';
 
 function App() {
+    const [rating, setRating] = useState(0);
+    const [opinion, setOpinion] = useState('');
+    
+    const Avaliacao = ({ company, rating, setRating, opinion, setOpinion, setView }) => {
+        const textareaRef = useRef(null);
+      
+        const handleOpinionChange = (e) => {
+          setOpinion(e.target.value);
+        };
+      
+        useEffect(() => {
+          if (textareaRef.current) {
+            textareaRef.current.focus();
+            textareaRef.current.selectionStart = textareaRef.current.selectionEnd = textareaRef.current.value.length;
+          }
+        }, [opinion]);
+      
+        const handleSubmit = () => {
+          const avaliacao = {
+            rating,
+            opinion,
+            username: company.username,
+            nome: company.nome,
+          };
+      
+          // Salva a avaliação no localStorage
+          localStorage.setItem(`avaliacao_${company.username}`, JSON.stringify(avaliacao));
+      
+          console.log('Avaliação enviada:', avaliacao);
+          setRating(0); // Limpa a avaliação
+          setOpinion(''); // Limpa a opinião
+          setView('viewCompanies');
+        };
+      
+        return (
+          <div className='login-container'>
+            <h2>Avaliação da Empresa</h2>
+          <strong>Nome:</strong> {company.nome}
+            <StarRating rating={rating} setRating={setRating} />
+            <textarea
+              ref={textareaRef}
+              value={opinion}
+              onChange={handleOpinionChange}
+              placeholder="Deixe sua opinião"
+              rows="4"
+              cols="50"
+            />
+            <br />
+            <button onClick={handleSubmit}>Enviar Avaliação</button>
+            <button onClick={() => setView('viewCompanies')}>Voltar</button>
+          </div>
+        );
+      };
+      
+  
+    const [selectedCompany, setSelectedCompany] = useState(null);
+    const handleCompanyClick = (company) => {
+        setSelectedCompany(company);
+        setView('avaliacao');
+      };
+      const StarRating = ({ rating, setRating, size = '25px' }) => {
+        const handleStarClick = (index) => {
+          setRating(index + 1);
+        };
+      
+        return (
+          <div>
+            {[...Array(5)].map((star, index) => (
+              <span
+                key={index}
+                onClick={() => handleStarClick(index)}
+                style={{ cursor: 'pointer', color: index < rating ? 'gold' : 'gray', fontSize: size }}
+              >
+                ★
+              </span>
+            ))}
+          </div>
+        );
+      };
+      
+      
+      const StarDisplay = ({ rating }) => {
+        return (
+          <div>
+            {[...Array(5)].map((star, index) => (
+              <span key={index} style={{ color: index < rating ? 'gold' : 'gray' }}>
+                ★
+              </span>
+            ))}
+          </div>
+        );
+      };
+      
+      
     const [companies, setCompanies] = useState([]); // Novo estado para armazenar as empresas
     const [projects, setProjects] = useState([]);
     const [newProject, setNewProject] = useState({ name: '', description: '', image: '', price: '' });
@@ -50,21 +145,7 @@ function App() {
         }
     };
     
-
-    const handleRatingChange = (rate) => {
-        setRating(rate);
-    };
-
-    const handleCommentChange = (e) => {
-        setComment(e.target.value);
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-        // Aqui você pode enviar a avaliação para o servidor ou gerenciar como preferir
-        console.log('Avaliação enviada:', { rating, comment });
-        setSubmitted(true);
-    };
+    
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -114,6 +195,7 @@ function App() {
             .catch(error => console.error('Erro ao adicionar projeto:', error));
     };
 
+      
     const handleDeleteProject = (projectId) => {
         axios.delete(`http://localhost:5000/projects/${projectId}`)
             .then(response => {
@@ -160,6 +242,16 @@ function App() {
         const storedCompanies = Object.keys(localStorage).map(key => JSON.parse(localStorage.getItem(key)));
         setCompanies(storedCompanies);
     }, []);
+    useEffect(() => {
+        const storedCompanies = Object.keys(localStorage).map(key => {
+          if (key.startsWith('avaliacao_')) return null; // Ignora as chaves de avaliações
+          const company = JSON.parse(localStorage.getItem(key));
+          const avaliacao = JSON.parse(localStorage.getItem(`avaliacao_${company.username}`));
+          return { ...company, avaliacao };
+        }).filter(company => company !== null); // Remove os valores nulos
+        setCompanies(storedCompanies);
+      }, []);
+      
     return (
         <div>
             <nav className="navbar">
@@ -186,52 +278,35 @@ function App() {
         <img src="https://github.com/andreza02111/Imagens--trabalho/blob/Python/imagem2.png?raw=true" alt="Banner" />
     </div>
     {!isAuthenticated && view === 'viewCompanies' && (
-    <div onClick={() => setView('avalicao')} style={{ cursor: 'pointer' }}>
-        <h2 className='tituloEmpresas'>Lista de Empresas Registradas</h2>
-        <ul className="company-list">
-            {companies.map(company => (
-                <li key={company.username} className="company-item">
-                    <img src={company.imagem} alt={company.nome} className="company-image" />
-                    <div className="company-details">
-                        <h3>{company.username}</h3>
-                        <h4>{company.nome}</h4>
-                    </div>
-                </li>
-            ))}
-        </ul>
-    </div>
+  <div>
+    <h2 className='tituloEmpresas'>Lista de Empresas Registradas</h2>
+    <ul className="company-list">
+      {companies.map(company => (
+        <li key={company.nome} className="company-item" onClick={() => handleCompanyClick(company)} style={{ cursor: 'pointer' }}>
+          <img src={company.imagem} alt={company.nome} className="company-image" />
+          <div className="company-details">
+            <h3>{company.nome}</h3>
+            <h4>{company.tipoEmpresa}</h4>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
 )}
-{!isAuthenticated && view === 'avalicao' && (
-                <div className="avaliacao-container">
-                    <h2>Avalie nosso serviço</h2>
-                    <form onSubmit={handleSubmit}>
-                        <div className="rating">
-                            <h3>Avaliação:</h3>
-                            {[1, 2, 3, 4, 5].map((rate) => (
-                                <span
-                                    key={rate}
-                                    onClick={() => handleRatingChange(rate)}
-                                    style={{ cursor: 'pointer', fontSize: '24px', color: rating >= rate ? '#FFD700' : '#ccc' }}
-                                >
-                                    ★
-                                </span>
-                            ))}
-                        </div>
-                        <div className="comment">
-                            <label htmlFor="comment">Comentário:</label>
-                            <textarea
-                                id="comment"
-                                value={comment}
-                                onChange={handleCommentChange}
-                                placeholder="Escreva seu comentário aqui"
-                            />
-                        </div>
-                        <button type="submit">Enviar Avaliação</button>
-                    </form>
 
-                    {submitted && <p>Avaliação enviada com sucesso! Obrigado!</p>}
-                </div>
-            )}
+{view === 'avaliacao' && selectedCompany && (
+  <Avaliacao
+    company={selectedCompany}
+    rating={rating}
+    setRating={setRating}
+    opinion={opinion}
+    setOpinion={setOpinion}
+    setView={setView}
+  />
+)}
+
+
+
         {!isAuthenticated && view === 'login' && (
             <div className="login-container">
                 <h2>Login</h2>
@@ -496,9 +571,9 @@ function App() {
                         <div className="product-list">
                             {projects.map((project, index) => (
                                 <div className="product-item" key={index}>
-                                    <strong>{index + 1}. Nome:</strong> {project.name} <br />
+                                    <strong>Nome:</strong> {project.name} <br />
                                     <strong>Descrição:</strong> {project.description} <br />
-                                    <strong>Imagem:</strong> <img src={project.image} alt={project.name} width="100" /> <br />
+                                    <strong>Imagem:</strong> <img src={project.image} alt={project.name} width="100"  /> <br />
                                     <strong>Preço:</strong> {project.price} <br />
                                     <button onClick={() => handleEditProject(project)}>Editar</button>
                                     <button onClick={() => handleDeleteProject(project._id)}>Deletar</button>
@@ -509,26 +584,39 @@ function App() {
                 </section>
             )}
 {view === 'index_empresa' && (
-                <section id="projectList" className="index_empresas">
-                    <h2>Meus Produtos</h2>
-                    {projects.length === 0 ? (
-                        <p>Nenhum produto foi adicionado ainda.</p>
-                    ) : (
-                        <div className="product-list">
-                            {projects.map((project, index) => (
-                                <div className="product-item" key={index}>
-                                    <strong>{index + 1}. Nome:</strong> {project.name} <br />
-                                    <strong>Descrição:</strong> {project.description} <br />
-                                    <strong>Imagem:</strong> <img src={project.image} alt={project.name} width="100" /> <br />
-                                    <strong>Preço:</strong> {project.price} <br />
-                                    <button onClick={() => handleEditProject(project)}>Editar</button>
-                                    <button onClick={() => handleDeleteProject(project._id)}>Deletar</button>
-                                </div>
-                            ))}
-                        </div>
-                    )}
-                </section>
-            )}
+  <section id="projectList" className="index_empresas">
+    <h2>Meus Produtos</h2>
+    {projects.length === 0 ? (
+      <p>Nenhum produto foi adicionado ainda.</p>
+    ) : (
+      <div className="product-list">
+        {projects.map((project, index) => (
+          <div className="product-item" key={index}>
+            <strong>{index + 1}. Nome:</strong> {project.name} <br />
+            <strong>Descrição:</strong> {project.description} <br />
+            <strong>Imagem:</strong> <img src={project.image} alt={project.name} width="100" /> <br />
+            <strong>Preço:</strong> {project.price} <br />
+            <button onClick={() => handleEditProject(project)}>Editar</button>
+            <button onClick={() => handleDeleteProject(project._id)}>Deletar</button>
+          </div>
+        ))}
+      </div>
+    )}
+    <div >
+    <h3>Avaliações</h3>
+    {companies.find(company => company.username === currentUser.username)?.avaliacao ? (
+      <div className="avaliacao">
+        <strong >Avaliação:</strong> <StarDisplay rating={companies.find(company => company.username === currentUser.username).avaliacao.rating} /> <br />
+       <strong >Opinião:</strong> {companies.find(company => company.username === currentUser.username).avaliacao.opinion} <br />
+      </div>
+    ) : (
+      <p>Nenhuma avaliação encontrada.</p>
+    )}
+    </div>
+  </section>
+)}
+
+
             {view === 'addProduct' && (
                 <section id="addProject"  className='login-container'>
                     <h2>{editingProject ? 'Editar Produto' : 'Adicionar Produto'}</h2>

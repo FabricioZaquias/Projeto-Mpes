@@ -209,3 +209,119 @@ text-align: justify;}
 .index_empresas H2{
 text-align: center;
 }
+
+
+.avaliacao{
+  width: 200px;
+  background-color: #f9f9f9;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 15px;
+  margin: 10px 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+} 
+
+.avaliacao strong {
+color: #333;
+  font-size: 16px;
+}
+
+.avaliacao p{
+ font-size: 14px;
+  color: #666;
+}
+.star-display {
+  color: #f39c12;
+  font-size: 25px;
+}
+
+p.no-review {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+#projectList {
+  background-color: #f0f0f0;
+  padding: 20px;
+  border-radius: 8px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+#projectList h2 {
+  font-size: 24px;
+  color: #2c3e50;
+  margin-bottom: 20px;
+}
+
+#projectList button {
+  background-color: #83516e;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  margin: 10px 0;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+#projectList button:hover {
+  background-color: #fdfe8d;
+}
+
+.product-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  justify-content: center;
+}
+
+.product-item {
+  background-color: #fff;
+  border: 1px solid #ddd;
+  padding: 10px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  width: 250px;
+  text-align: center;
+}
+
+.product-item img {
+  border-radius: 20%; /* Imagem redonda */
+  margin: 10px 0;
+  width: 100px;
+  height: 100px;
+  object-fit: cover;
+}
+
+.product-item strong {
+  color: #34495e;
+  font-size: 14px;
+}
+
+.product-item button {
+  background-color: #83516e;
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  margin-right: 10px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.product-item button:hover {
+  background-color: #fdfe8d;
+}
+
+.product-item button:first-child {
+  background-color: #83516e;
+}
+
+.product-item button:first-child:hover {
+  background-color: #fdfe8d;
+}
+
+p {
+  color: #666;
+  font-size: 16px;
+}
