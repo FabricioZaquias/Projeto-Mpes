@@ -184,3 +184,28 @@ a:hover {
 }
 .tituloEmpresas{
 text-align: center;}
+.meus_dados{
+    background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  padding: 20px;
+  width: 1200px;
+  position: absolute; /* Adiciona esta linha */
+  top: 50%; /* Adiciona esta linha */
+  left: 50%; /* Adiciona esta linha */
+  transform: translate(-50%, -2%);
+}
+.meus_dados H2,H3{
+  text-align: center;
+}
+.meus_dados p{
+text-align: justify;}
+.meus_dados img{
+    width: 100px;
+    height: 100px;
+    object-fit: cover;
+    border-radius: 50%;
+    margin-right: 20px;}
+.index_empresas H2{
+text-align: center;
+}

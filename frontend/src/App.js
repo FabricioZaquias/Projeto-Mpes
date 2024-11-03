@@ -31,6 +31,8 @@ function App() {
         socioTelefone: '',
         socioEmail: ''
     });
+    const [currentUser, setCurrentUser] = useState(null);
+
     const [view, setView] = useState('viewCompanies');
 
     const handleRegister = (e) => {
@@ -48,7 +50,21 @@ function App() {
         }
     };
     
-    
+
+    const handleRatingChange = (rate) => {
+        setRating(rate);
+    };
+
+    const handleCommentChange = (e) => {
+        setComment(e.target.value);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        // Aqui você pode enviar a avaliação para o servidor ou gerenciar como preferir
+        console.log('Avaliação enviada:', { rating, comment });
+        setSubmitted(true);
+    };
 
     const handleLogin = (e) => {
         e.preventDefault();
@@ -56,7 +72,8 @@ function App() {
         const storedUser = JSON.parse(localStorage.getItem(username));
         if (storedUser && storedUser.password === password) {
             setIsAuthenticated(true);
-            setView('viewProducts');
+            setCurrentUser(storedUser);
+            setView('index_empresa');
         } else {
             alert('Credenciais inválidas');
         }
@@ -71,24 +88,20 @@ function App() {
         const { name, value } = e.target;
         setRegisterForm(prevState => ({ ...prevState, [name]: value }));
     };
-
     useEffect(() => {
         if (isAuthenticated) {
             axios.get('http://localhost:5000/projects')
-                .then(response => setProjects(response.data))
+                .then(response => {
+                    // Filtra os projetos para mostrar apenas os da empresa autenticada
+                    const userProjects = response.data.filter(project => project.createdBy === currentUser.username);
+                    setProjects(userProjects);
+                })
                 .catch(error => console.error('Erro ao buscar projetos:', error));
         }
-    }, [isAuthenticated]);
-
+    }, [isAuthenticated, currentUser]);
     const handleInputChange = (e) => {
         const { name, value } = e.target;
-/*************  ✨ Codeium Command ⭐  *************/
-    /**
-     * Atualiza o projeto com o id `editingProject` no servidor com as
-     * informações em `newProject` e atualiza o estado com o novo valor
-     * do projeto.
-     */
-/******  190e992a-2f18-450c-b6cb-0c051881b391  *******/        setNewProject(prevState => ({ ...prevState, [name]: value }));
+        setNewProject(prevState => ({ ...prevState, [name]: value }));
     };
 
     const handleAddProject = () => {
@@ -147,37 +160,78 @@ function App() {
         const storedCompanies = Object.keys(localStorage).map(key => JSON.parse(localStorage.getItem(key)));
         setCompanies(storedCompanies);
     }, []);
-return (
-    <div>
-    <nav className="navbar">
-        <ul className="navbar-list">
-            <li className="navbar-item" onClick={() => setView('viewCompanies')}>Home</li>
-            <li className="navbar-item" onClick={() => setView('contacts')}>Contatos</li>
-            <li className="navbar-item" onClick={() => setView('login')}>Login</li>
-        </ul>
-    </nav>
+    return (
+        <div>
+            <nav className="navbar">
+                <ul className="navbar-list">
+                    {!isAuthenticated ? (
+                        <>
+                            <li className="navbar-item" onClick={() => setView('viewCompanies')}>Home</li>
+                            <li className="navbar-item" onClick={() => setView('contacts')}>Contatos</li>
+                            <li className="navbar-item" onClick={() => setView('login')}>Login</li>
+                        </>
+                    ) : (
+                        <>
+                           <li className="navbar-item" onClick={() => setView('index_empresa')}>Início</li>
+                            <li className="navbar-item" onClick={() => setView('viewProducts')}>Meus Produtos</li>
+                            <li className="navbar-item" onClick={() => setView('addProduct')}>Adicionar Produtos</li>
+                            <li className="navbar-item" onClick={() => setView('myData')}>Meus Dados</li>
+                            <li className="navbar-item" onClick={() => { setIsAuthenticated(false); setView('viewCompanies'); }}>Logout</li>
+                        </>
+                    )}
+                </ul>
+            </nav>
 
     <div className="banner">
         <img src="https://github.com/andreza02111/Imagens--trabalho/blob/Python/imagem2.png?raw=true" alt="Banner" />
     </div>
-
     {!isAuthenticated && view === 'viewCompanies' && (
-        <div>
-            <h2 className='tituloEmpresas'>Lista de Empresas Registradas</h2>
-            <ul className="company-list">
-                {companies.map(company => (
-                    <li key={company.username} className="company-item">
-                        <img src={company.imagem} alt={company.nome} className="company-image" />
-                        <div className="company-details">
-                            <h3>{company.username}</h3>
-                            <h4>{company.nome}</h4>
+    <div onClick={() => setView('avalicao')} style={{ cursor: 'pointer' }}>
+        <h2 className='tituloEmpresas'>Lista de Empresas Registradas</h2>
+        <ul className="company-list">
+            {companies.map(company => (
+                <li key={company.username} className="company-item">
+                    <img src={company.imagem} alt={company.nome} className="company-image" />
+                    <div className="company-details">
+                        <h3>{company.username}</h3>
+                        <h4>{company.nome}</h4>
+                    </div>
+                </li>
+            ))}
+        </ul>
+    </div>
+)}
+{!isAuthenticated && view === 'avalicao' && (
+                <div className="avaliacao-container">
+                    <h2>Avalie nosso serviço</h2>
+                    <form onSubmit={handleSubmit}>
+                        <div className="rating">
+                            <h3>Avaliação:</h3>
+                            {[1, 2, 3, 4, 5].map((rate) => (
+                                <span
+                                    key={rate}
+                                    onClick={() => handleRatingChange(rate)}
+                                    style={{ cursor: 'pointer', fontSize: '24px', color: rating >= rate ? '#FFD700' : '#ccc' }}
+                                >
+                                    ★
+                                </span>
+                            ))}
                         </div>
-                    </li>
-                ))}
-            </ul>
-        </div>
-    )}
+                        <div className="comment">
+                            <label htmlFor="comment">Comentário:</label>
+                            <textarea
+                                id="comment"
+                                value={comment}
+                                onChange={handleCommentChange}
+                                placeholder="Escreva seu comentário aqui"
+                            />
+                        </div>
+                        <button type="submit">Enviar Avaliação</button>
+                    </form>
 
+                    {submitted && <p>Avaliação enviada com sucesso! Obrigado!</p>}
+                </div>
+            )}
         {!isAuthenticated && view === 'login' && (
             <div className="login-container">
                 <h2>Login</h2>
@@ -209,7 +263,33 @@ return (
                 </form>
             </div>
         )}
-
+ {view === 'myData' && isAuthenticated && currentUser && (
+                <div className= "meus_dados">
+                    <h2>Meus Dados</h2>
+                    <div>
+                        <h3>Empresa</h3>
+                        <img src={currentUser.imagem} alt={currentUser.nome}/>
+                        <p><strong>Nome:</strong> {currentUser.nome}</p>
+                        <p><strong>Usuário:</strong> {currentUser.username}</p>
+                        <p><strong>CNPJ:</strong> {currentUser.cnpj}</p>
+                        <p><strong>Inscrição Estadual:</strong> {currentUser.inscricaoEstadual}</p>
+                        <p><strong>Tipo de Empresa:</strong> {currentUser.tipoEmpresa}</p>
+                        <p><strong>Data de Abertura:</strong> {currentUser.dataAbertura}</p>
+                        <p><strong>Natureza Jurídica:</strong> {currentUser.naturezaJuridica}</p>
+                        <p><strong>Atividade Principal:</strong> {currentUser.atividadePrincipal}</p>
+                        <p><strong>Endereço:</strong> {currentUser.endereco}</p>
+                        <p><strong>Telefone:</strong> {currentUser.telefone}</p>
+                        <p><strong>Email:</strong> {currentUser.email}</p>
+                        <h3>Sócio Proprietário</h3>
+                        <p><strong>Nome:</strong> {currentUser.socioNome}</p>
+                        <p><strong>CPF:</strong> {currentUser.socioCpf}</p>
+                        <p><strong>Data de Nascimento:</strong> {currentUser.socioDataNascimento}</p>
+                        <p><strong>Cargo:</strong> {currentUser.socioCargo}</p>
+                        <p><strong>Telefone:</strong> {currentUser.socioTelefone}</p>
+                        <p><strong>Email:</strong> {currentUser.socioEmail}</p>
+                    </div>
+                </div>
+            )}
         {!isAuthenticated && view === 'cadastro' && (
             <div className="cadastro-container">
                 <h2>Cadastro Empresa</h2>
@@ -428,12 +508,32 @@ return (
                     )}
                 </section>
             )}
-
+{view === 'index_empresa' && (
+                <section id="projectList" className="index_empresas">
+                    <h2>Meus Produtos</h2>
+                    {projects.length === 0 ? (
+                        <p>Nenhum produto foi adicionado ainda.</p>
+                    ) : (
+                        <div className="product-list">
+                            {projects.map((project, index) => (
+                                <div className="product-item" key={index}>
+                                    <strong>{index + 1}. Nome:</strong> {project.name} <br />
+                                    <strong>Descrição:</strong> {project.description} <br />
+                                    <strong>Imagem:</strong> <img src={project.image} alt={project.name} width="100" /> <br />
+                                    <strong>Preço:</strong> {project.price} <br />
+                                    <button onClick={() => handleEditProject(project)}>Editar</button>
+                                    <button onClick={() => handleDeleteProject(project._id)}>Deletar</button>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </section>
+            )}
             {view === 'addProduct' && (
-                <section id="addProject">
+                <section id="addProject"  className='login-container'>
                     <h2>{editingProject ? 'Editar Produto' : 'Adicionar Produto'}</h2>
                     <form onSubmit={(e) => { e.preventDefault(); editingProject ? handleUpdateProject() : handleAddProject(); }}>
-                        <input
+                        <input className="input_login"
                             type="text"
                             name="name"
                             value={newProject.name}
@@ -442,7 +542,7 @@ return (
                             required
                         />
                         <br />
-                        <input
+                        <input className="input_login"
                             type="text"
                             name="description"
                             value={newProject.description}
@@ -451,7 +551,7 @@ return (
                             required
                         />
                         <br />
-                        <input
+                        <input className="input_login"
                             type="text"
                             name="image"
                             value={newProject.image}
@@ -460,7 +560,7 @@ return (
                             required
                         />
                         <br />
-                        <input
+                        <input className="input_login"
                             type="text"
                             name="price"
                             value={newProject.price}
@@ -470,9 +570,10 @@ return (
                         />
                         <br />
                         <button type="submit">{editingProject ? 'Atualizar Produto' : 'Adicionar Produto'}</button>
+                        <button onClick={() => setView('viewProducts')}>Voltar para Lista de Produtos</button>
                     </form>
-                    {/* Botão de voltar para a lista de produtos */}
-                    <button onClick={() => setView('viewProducts')}>Voltar para Lista de Produtos</button>
+                   
+                  
                 </section>
 
         )}
